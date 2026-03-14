@@ -3,7 +3,7 @@ import { Key, Check, AlertCircle, Loader, Copy, ExternalLink } from 'lucide-reac
 import { useApp } from '../context/AppContext';
 
 const LICENSE_KEY_REGEX = /^CARF-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
-const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://api.carful.app';
+const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://carful-api-production.up.railway.app';
 
 function LicenseManager() {
   const { state, actions } = useApp();
@@ -72,7 +72,7 @@ function LicenseManager() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          license_key: trimmedKey,
+          licenseKey: trimmedKey,
         }),
       });
 
@@ -83,15 +83,19 @@ function LicenseManager() {
 
       const verifyData = await verifyResponse.json();
 
-      // Then, activate the license
+      if (!verifyData.valid) {
+        throw new Error(verifyData.isExpired ? 'License has expired' : 'License is not active');
+      }
+
+      // Then, activate the license on this machine
       const activateResponse = await fetch(`${API_BASE_URL}/api/activate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          license_key: trimmedKey,
-          machine_id: machineId,
+          licenseKey: trimmedKey,
+          machineId: machineId,
         }),
       });
 
@@ -102,12 +106,12 @@ function LicenseManager() {
 
       const activateData = await activateResponse.json();
 
-      // Store license data locally
+      // Store license data locally (use verifyData for email/status, activateData for machine info)
       const licenseData = {
         key: trimmedKey,
-        email: activateData.email,
-        status: activateData.status || 'active',
-        expiresAt: activateData.expires_at,
+        email: verifyData.email,
+        status: verifyData.status || 'active',
+        expiresAt: verifyData.expiresAt,
         machineId: machineId,
         activatedAt: new Date().toISOString(),
       };
@@ -116,7 +120,7 @@ function LicenseManager() {
       actions.setLicense(licenseData);
 
       setKeyInput('');
-      setSuccess(`License activated successfully! Welcome, ${activateData.email}`);
+      setSuccess(`License activated successfully! (${activateData.machineCount}/${activateData.maxMachines} machines)`);
       actions.addLog(`License activated: ${trimmedKey}`);
 
       // Clear success message after 5 seconds
@@ -141,6 +145,23 @@ function LicenseManager() {
     setError(null);
 
     try {
+      // Call API to free up machine slot
+      if (license?.key && machineId) {
+        try {
+          await fetch(`${API_BASE_URL}/api/deactivate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              licenseKey: license.key,
+              machineId: machineId,
+            }),
+          });
+        } catch (apiErr) {
+          // If API call fails, still deactivate locally
+          console.warn('Failed to deactivate on server:', apiErr);
+        }
+      }
+
       await window.carful?.license?.clear();
       actions.clearLicense();
       setSuccess('License deactivated');
@@ -152,7 +173,7 @@ function LicenseManager() {
     } finally {
       setLoading(false);
     }
-  }, [actions]);
+  }, [license, machineId, actions]);
 
   // Format expiry date
   const formatExpiryDate = (isoString) => {
