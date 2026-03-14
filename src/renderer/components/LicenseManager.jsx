@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Key, Check, AlertCircle, Loader, Copy, ExternalLink } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
-const LICENSE_KEY_REGEX = /^CARF-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+const LICENSE_KEY_REGEX = /^CARF-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
 const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://carful-api-production.up.railway.app';
 
 function LicenseManager() {
@@ -56,7 +56,7 @@ function LicenseManager() {
 
     // Validate format
     if (!isValidKeyFormat(trimmedKey)) {
-      setError('Invalid license key format. Expected: CARF-XXXX-XXXX-XXXX-XXXX');
+      setError('Invalid license key format. Expected: CARF-XXXX-XXXX-XXXX-XXXX-XXXX');
       return;
     }
 
@@ -228,12 +228,12 @@ function LicenseManager() {
                   setKeyInput(e.target.value);
                   setError(null);
                 }}
-                placeholder="CARF-XXXX-XXXX-XXXX-XXXX"
+                placeholder="CARF-XXXX-XXXX-XXXX-XXXX-XXXX"
                 className={`input ${error ? 'border-error-500' : ''}`}
                 disabled={loading}
               />
               <p className="text-xs text-slate-500 mt-2">
-                Format: CARF-XXXX-XXXX-XXXX-XXXX (alphanumeric)
+                Format: CARF-XXXX-XXXX-XXXX-XXXX-XXXX (alphanumeric)
               </p>
             </div>
 
