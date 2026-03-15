@@ -35,6 +35,9 @@ class PythonBridge {
         this.buffer = '';
         this.isReady = false;
         this.pythonPath = this._findPythonPath();
+        this._readyPromise = null;
+        this._readyResolve = null;
+        this._pendingQueue = []; // Queue for requests that arrive before ready
 
         this._start();
     }
@@ -80,6 +83,24 @@ class PythonBridge {
 
         console.log(`Starting Python bridge: ${this.pythonPath} ${args.join(' ')}`);
 
+        // Create a promise that resolves when Python sends the ready signal
+        this._readyPromise = new Promise((resolve, reject) => {
+            this._readyResolve = resolve;
+
+            // Timeout after 15 seconds if Python never becomes ready
+            setTimeout(() => {
+                if (!this.isReady) {
+                    console.error('Python process failed to become ready within 15 seconds');
+                    reject(new Error('Python process startup timeout'));
+                    // Reject all queued requests
+                    for (const { reject: qReject } of this._pendingQueue) {
+                        qReject(new Error('Python process startup timeout'));
+                    }
+                    this._pendingQueue = [];
+                }
+            }, 15000);
+        });
+
         try {
             this.process = spawn(this.pythonPath, args, {
                 stdio: ['pipe', 'pipe', 'pipe'],
@@ -93,7 +114,7 @@ class PythonBridge {
 
             // Handle stderr (logging/errors)
             this.process.stderr.on('data', (data) => {
-                console.error('Python stderr:', data.toString());
+                console.error('Python stderr:', data.toString().trim());
             });
 
             // Handle process exit
@@ -106,6 +127,12 @@ class PythonBridge {
                     reject(new Error('Python process terminated'));
                 }
                 this.pendingRequests.clear();
+
+                // Reject all queued requests
+                for (const { reject } of this._pendingQueue) {
+                    reject(new Error('Python process terminated'));
+                }
+                this._pendingQueue = [];
             });
 
             // Handle process error
@@ -114,7 +141,8 @@ class PythonBridge {
                 this.isReady = false;
             });
 
-            this.isReady = true;
+            // NOT setting isReady = true here — we wait for the ready signal from Python
+
         } catch (error) {
             console.error('Failed to start Python process:', error);
             throw error;
@@ -148,11 +176,23 @@ class PythonBridge {
      * Handle a parsed RPC response.
      */
     _handleResponse(response) {
-        const { id, result, error } = response;
+        const { id, result, error, method } = response;
+
+        // Check for ready signal from Python
+        if (method === 'ready') {
+            console.log('Python process is ready');
+            this.isReady = true;
+            if (this._readyResolve) {
+                this._readyResolve();
+            }
+            // Flush queued requests
+            this._flushQueue();
+            return;
+        }
 
         if (id === undefined || id === null) {
             // Notification (no id) - could be progress update
-            if (response.method === 'progress') {
+            if (method === 'progress') {
                 // Handle progress notification
                 console.log('Progress:', response.params);
             }
@@ -175,6 +215,19 @@ class PythonBridge {
     }
 
     /**
+     * Flush queued requests that arrived before Python was ready.
+     */
+    _flushQueue() {
+        console.log(`Flushing ${this._pendingQueue.length} queued RPC requests`);
+        const queue = [...this._pendingQueue];
+        this._pendingQueue = [];
+
+        for (const { method, params, resolve, reject } of queue) {
+            this.invoke(method, params).then(resolve).catch(reject);
+        }
+    }
+
+    /**
      * Send an RPC request to Python and return a Promise.
      *
      * @param {string} method - RPC method name
@@ -183,8 +236,15 @@ class PythonBridge {
      */
     invoke(method, params = {}) {
         return new Promise((resolve, reject) => {
-            if (!this.isReady || !this.process) {
-                reject(new Error('Python process not ready'));
+            if (!this.process) {
+                reject(new Error('Python process not started'));
+                return;
+            }
+
+            // If not ready yet, queue the request
+            if (!this.isReady) {
+                console.log(`Python not ready yet, queuing request: ${method}`);
+                this._pendingQueue.push({ method, params, resolve, reject });
                 return;
             }
 
@@ -228,6 +288,15 @@ class PythonBridge {
                 reject(error);
             }
         });
+    }
+
+    /**
+     * Wait for the Python process to be ready.
+     * @returns {Promise<void>}
+     */
+    waitForReady() {
+        if (this.isReady) return Promise.resolve();
+        return this._readyPromise;
     }
 
     /**
