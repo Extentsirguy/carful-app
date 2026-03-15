@@ -47,32 +47,16 @@ class PythonBridge {
      * In production, this will be the PyInstaller-bundled executable.
      */
     _findPythonPath() {
-        const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-
-        if (isDev) {
-            // Development: use system Python
-            return process.platform === 'win32' ? 'python' : 'python3';
-        } else {
-            // Production: use bundled executable
-            const resourcesPath = process.resourcesPath;
-            const execName = process.platform === 'win32' ? 'carful.exe' : 'carful';
-            return path.join(resourcesPath, 'python', execName);
-        }
+        // Always use system Python — we haven't built a PyInstaller binary yet
+        return process.platform === 'win32' ? 'python' : 'python3';
     }
 
     /**
      * Get the arguments to launch the RPC server.
      */
     _getRpcServerArgs() {
-        const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-
-        if (isDev) {
-            // Development: run as Python module so carful package is importable
-            return ['-m', 'carful.rpc_server'];
-        } else {
-            // Production: the RPC server is bundled in the executable
-            return [];
-        }
+        // Always run as module — works in both dev and production
+        return ['-m', 'carful.rpc_server'];
     }
 
     /**
@@ -102,9 +86,18 @@ class PythonBridge {
         });
 
         try {
+            // In production, carful package is in Contents/Resources/carful/
+            // In dev, it's at ../../../ (project root's parent has carful/)
+            const isDev = !app.isPackaged;
+            const cwd = isDev
+                ? path.join(__dirname, '../../../')
+                : process.resourcesPath;
+
+            console.log(`Python CWD: ${cwd}`);
+
             this.process = spawn(this.pythonPath, args, {
                 stdio: ['pipe', 'pipe', 'pipe'],
-                cwd: path.join(__dirname, '../../../'),
+                cwd: cwd,
             });
 
             // Handle stdout (RPC responses)
