@@ -47,8 +47,43 @@ class PythonBridge {
      * In production, this will be the PyInstaller-bundled executable.
      */
     _findPythonPath() {
-        // Always use system Python — we haven't built a PyInstaller binary yet
-        return process.platform === 'win32' ? 'python' : 'python3';
+        if (process.platform === 'win32') {
+            // In production, use bundled embeddable Python
+            const path = require('path');
+            const fs = require('fs');
+            const { app } = require('electron');
+
+            if (app.isPackaged) {
+                const bundledPython = path.join(process.resourcesPath, 'python-win', 'python.exe');
+                if (fs.existsSync(bundledPython)) {
+                    console.log(`Using bundled Python: ${bundledPython}`);
+                    return bundledPython;
+                }
+            }
+            // Fallback to system Python in dev mode
+            return 'python';
+        }
+
+        // macOS apps launched from Dock don't inherit shell PATH,
+        // so we check common Python locations
+        const fs = require('fs');
+        const candidates = [
+            '/opt/anaconda3/bin/python3',       // Anaconda default
+            '/usr/local/bin/python3',           // Homebrew
+            '/opt/homebrew/bin/python3',        // Homebrew Apple Silicon
+            '/usr/bin/python3',                 // System Python
+        ];
+
+        for (const candidate of candidates) {
+            if (fs.existsSync(candidate)) {
+                console.log(`Found Python at: ${candidate}`);
+                return candidate;
+            }
+        }
+
+        // Fallback to PATH-based lookup
+        console.warn('No Python found at known locations, falling back to python3');
+        return 'python3';
     }
 
     /**

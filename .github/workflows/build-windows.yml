@@ -20,6 +20,35 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Setup Python (for pip install)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download Python Embeddable
+        shell: pwsh
+        run: |
+          $pythonUrl = "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip"
+          $outDir = "resources\python-win"
+          Invoke-WebRequest -Uri $pythonUrl -OutFile python-embed.zip
+          Expand-Archive -Path python-embed.zip -DestinationPath $outDir -Force
+          Remove-Item python-embed.zip
+
+          # Enable pip in embeddable Python by uncommenting import site
+          $pthFile = Get-ChildItem "$outDir\python*._pth"
+          (Get-Content $pthFile) -replace '#import site', 'import site' | Set-Content $pthFile
+
+          # Install pip
+          Invoke-WebRequest -Uri "https://bootstrap.pypa.io/get-pip.py" -OutFile "$outDir\get-pip.py"
+          & "$outDir\python.exe" "$outDir\get-pip.py" --no-warn-script-location
+          Remove-Item "$outDir\get-pip.py"
+
+          # Install carful dependencies into the embeddable Python
+          & "$outDir\python.exe" -m pip install -r ..\carful\requirements.txt --no-warn-script-location --target "$outDir\Lib"
+
+          # Add Lib to the path file so imports work
+          Add-Content -Path $pthFile -Value "Lib"
+
       - name: Install dependencies
         run: npm ci
 
