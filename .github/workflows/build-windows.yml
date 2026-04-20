@@ -44,7 +44,7 @@ jobs:
           Remove-Item "$outDir\get-pip.py"
 
           # Install carful dependencies into the embeddable Python
-          & "$outDir\python.exe" -m pip install -r ..\carful\requirements.txt --no-warn-script-location --target "$outDir\Lib"
+          & "$outDir\python.exe" -m pip install -r carful\requirements.txt --no-warn-script-location --target "$outDir\Lib"
 
           # Add Lib to the path file so imports work
           Add-Content -Path $pthFile -Value "Lib"

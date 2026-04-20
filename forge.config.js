@@ -17,7 +17,7 @@ module.exports = {
     asar: true,
     // Extra resources to include
     extraResource: [
-      '../carful',           // Python backend
+      './carful',            // Python backend package
       './resources',         // App resources
       './resources/python-win', // Bundled Python for Windows (only present in CI builds)
     ],

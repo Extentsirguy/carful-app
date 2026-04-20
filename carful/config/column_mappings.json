@@ -1,0 +1,272 @@
+{
+  "_comment": "CARFul Column Mapping Configuration - Maps exchange CSV formats to standard fields",
+  "_version": "1.0.0",
+  "_updated": "2026-02-01",
+
+  "standard_fields": {
+    "timestamp": "Transaction timestamp (ISO 8601 or parseable date)",
+    "description": "Transaction description/type for keyword mapping",
+    "amount": "Transaction amount (positive or negative)",
+    "asset": "Crypto asset symbol (BTC, ETH, etc.)",
+    "fiat_value": "Fiat equivalent value at time of transaction",
+    "fiat_currency": "Fiat currency code (USD, EUR, GBP)",
+    "transaction_id": "Blockchain or exchange transaction ID",
+    "fee": "Transaction fee amount",
+    "fee_asset": "Asset used for fee",
+    "from_address": "Source wallet/address",
+    "to_address": "Destination wallet/address",
+    "exchange": "Exchange or platform name",
+    "account": "Account identifier",
+    "notes": "Additional notes or memo"
+  },
+
+  "presets": {
+    "coinbase": {
+      "name": "Coinbase",
+      "description": "Coinbase standard CSV export format",
+      "columns": {
+        "Timestamp": "timestamp",
+        "Transaction Type": "description",
+        "Asset": "asset",
+        "Quantity Transacted": "amount",
+        "Spot Price Currency": "fiat_currency",
+        "Spot Price at Transaction": "fiat_value",
+        "Subtotal": null,
+        "Total (inclusive of fees and/or spread)": null,
+        "Fees and/or Spread": "fee",
+        "Notes": "notes"
+      }
+    },
+
+    "coinbase_pro": {
+      "name": "Coinbase Pro",
+      "description": "Coinbase Pro/Advanced Trade CSV format",
+      "columns": {
+        "time": "timestamp",
+        "type": "description",
+        "size": "amount",
+        "size unit": "asset",
+        "price": "fiat_value",
+        "fee": "fee",
+        "total": null,
+        "trade id": "transaction_id",
+        "order id": null,
+        "product": null
+      }
+    },
+
+    "binance": {
+      "name": "Binance",
+      "description": "Binance transaction history CSV",
+      "columns": {
+        "UTC_Time": "timestamp",
+        "Operation": "description",
+        "Coin": "asset",
+        "Change": "amount",
+        "Remark": "notes",
+        "Account": "account"
+      }
+    },
+
+    "binance_trade": {
+      "name": "Binance Trade History",
+      "description": "Binance trade history export",
+      "columns": {
+        "Date(UTC)": "timestamp",
+        "Pair": null,
+        "Side": "description",
+        "Price": "fiat_value",
+        "Executed": "amount",
+        "Amount": null,
+        "Fee": "fee",
+        "Fee Coin": "fee_asset"
+      }
+    },
+
+    "kraken": {
+      "name": "Kraken",
+      "description": "Kraken ledger export CSV",
+      "columns": {
+        "time": "timestamp",
+        "type": "description",
+        "asset": "asset",
+        "amount": "amount",
+        "fee": "fee",
+        "balance": null,
+        "refid": "transaction_id",
+        "txid": null
+      }
+    },
+
+    "gemini": {
+      "name": "Gemini",
+      "description": "Gemini transaction history CSV",
+      "columns": {
+        "Date": "timestamp",
+        "Time (UTC)": null,
+        "Type": "description",
+        "Symbol": "asset",
+        "Amount": "amount",
+        "Fee Amount": "fee",
+        "Fee Currency": "fee_asset",
+        "USD Amount": "fiat_value",
+        "Trade ID": "transaction_id"
+      }
+    },
+
+    "kucoin": {
+      "name": "KuCoin",
+      "description": "KuCoin account history CSV",
+      "columns": {
+        "Time": "timestamp",
+        "Type": "description",
+        "Currency": "asset",
+        "Amount": "amount",
+        "Fee": "fee",
+        "Remarks": "notes"
+      }
+    },
+
+    "crypto_com": {
+      "name": "Crypto.com",
+      "description": "Crypto.com App CSV export",
+      "columns": {
+        "Timestamp (UTC)": "timestamp",
+        "Transaction Description": "description",
+        "Currency": "asset",
+        "Amount": "amount",
+        "To Currency": null,
+        "To Amount": null,
+        "Native Currency": "fiat_currency",
+        "Native Amount": "fiat_value",
+        "Transaction Kind": null,
+        "Transaction Hash": "transaction_id"
+      }
+    },
+
+    "bitfinex": {
+      "name": "Bitfinex",
+      "description": "Bitfinex ledger CSV",
+      "columns": {
+        "DATE": "timestamp",
+        "DESCRIPTION": "description",
+        "CURRENCY": "asset",
+        "AMOUNT": "amount",
+        "BALANCE": null,
+        "WALLET": "account"
+      }
+    },
+
+    "bitstamp": {
+      "name": "Bitstamp",
+      "description": "Bitstamp transaction history",
+      "columns": {
+        "Datetime": "timestamp",
+        "Type": "description",
+        "Account": "account",
+        "Amount": "amount",
+        "Value": "fiat_value",
+        "Rate": null,
+        "Fee": "fee",
+        "Sub Type": null
+      }
+    },
+
+    "blockfi": {
+      "name": "BlockFi",
+      "description": "BlockFi transaction history CSV",
+      "columns": {
+        "Confirmed At": "timestamp",
+        "Transaction Type": "description",
+        "Cryptocurrency": "asset",
+        "Amount": "amount"
+      }
+    },
+
+    "celsius": {
+      "name": "Celsius",
+      "description": "Celsius transaction history CSV",
+      "columns": {
+        "Date and time": "timestamp",
+        "Transaction type": "description",
+        "Coin type": "asset",
+        "Coin amount": "amount",
+        "USD Value": "fiat_value",
+        "Original Reward Coin": null,
+        "Confirmed": null
+      }
+    },
+
+    "etherscan": {
+      "name": "Etherscan",
+      "description": "Etherscan CSV export",
+      "columns": {
+        "Txhash": "transaction_id",
+        "DateTime": "timestamp",
+        "From": "from_address",
+        "To": "to_address",
+        "Value": "amount",
+        "TxnFee(ETH)": "fee",
+        "Method": "description"
+      }
+    },
+
+    "generic": {
+      "name": "Generic",
+      "description": "Common field names that work with many exports",
+      "columns": {
+        "date": "timestamp",
+        "datetime": "timestamp",
+        "timestamp": "timestamp",
+        "time": "timestamp",
+        "type": "description",
+        "description": "description",
+        "action": "description",
+        "amount": "amount",
+        "quantity": "amount",
+        "asset": "asset",
+        "currency": "asset",
+        "coin": "asset",
+        "symbol": "asset",
+        "fee": "fee",
+        "fees": "fee",
+        "txid": "transaction_id",
+        "tx_id": "transaction_id",
+        "hash": "transaction_id",
+        "usd": "fiat_value",
+        "usd_value": "fiat_value",
+        "value_usd": "fiat_value"
+      }
+    }
+  },
+
+  "auto_detect_patterns": {
+    "timestamp": [
+      "timestamp", "date", "time", "datetime", "created", "executed",
+      "utc_time", "date(utc)", "confirmed at"
+    ],
+    "description": [
+      "description", "type", "transaction type", "action", "operation",
+      "transaction description", "side", "method"
+    ],
+    "amount": [
+      "amount", "quantity", "size", "volume", "change", "executed",
+      "quantity transacted", "coin amount"
+    ],
+    "asset": [
+      "asset", "currency", "coin", "symbol", "token", "crypto",
+      "cryptocurrency", "coin type", "size unit"
+    ],
+    "fiat_value": [
+      "usd", "eur", "gbp", "value", "fiat", "usd value", "native amount",
+      "spot price", "price", "usd amount"
+    ],
+    "transaction_id": [
+      "txid", "tx id", "transaction id", "hash", "txhash", "refid",
+      "trade id", "transaction hash"
+    ],
+    "fee": [
+      "fee", "fees", "commission", "fee amount", "txnfee"
+    ]
+  }
+}

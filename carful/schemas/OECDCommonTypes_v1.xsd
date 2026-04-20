@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    OECD Common Types Schema v1.0 (STF - Standard Types Format)
+    Common data types shared across OECD tax exchange schemas.
+    Used by CARF, CRS, and other TIES schemas.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:stf="urn:oecd:ties:stf:v1"
+           targetNamespace="urn:oecd:ties:stf:v1"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+    <!-- ============================================= -->
+    <!-- Message Header Types                          -->
+    <!-- ============================================= -->
+
+    <!-- Message Reference ID - UUID format -->
+    <xs:simpleType name="MessageRefId_Type">
+        <xs:annotation>
+            <xs:documentation>
+                Unique identifier for each message.
+                Should be UUID v4 format for global uniqueness.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="200"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Document Reference ID -->
+    <xs:simpleType name="DocRefId_Type">
+        <xs:annotation>
+            <xs:documentation>
+                Unique identifier for each document/record within a message.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="200"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Warning Type for non-fatal issues -->
+    <xs:complexType name="Warning_Type">
+        <xs:sequence>
+            <xs:element name="WarningCode" type="xs:string"/>
+            <xs:element name="WarningMessage" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- Timestamp Types                               -->
+    <!-- ============================================= -->
+
+    <!-- DateTime in ISO 8601 format -->
+    <xs:simpleType name="Timestamp_Type">
+        <xs:annotation>
+            <xs:documentation>
+                Timestamp in ISO 8601 format with timezone.
+                Example: 2025-01-15T10:30:00Z
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:dateTime"/>
+    </xs:simpleType>
+
+    <!-- Date only (no time component) -->
+    <xs:simpleType name="Date_Type">
+        <xs:annotation>
+            <xs:documentation>
+                Date in yyyy-MM-dd format.
+                Used for reporting period end dates.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:date"/>
+    </xs:simpleType>
+
+    <!-- ============================================= -->
+    <!-- Generic String Types                          -->
+    <!-- ============================================= -->
+
+    <xs:simpleType name="StringMin1Max50_Type">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="50"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="StringMin1Max100_Type">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="100"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="StringMin1Max200_Type">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="200"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="StringMin1Max400_Type">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="400"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="StringMin1Max4000_Type">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="4000"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- ============================================= -->
+    <!-- Correctable Record Support                    -->
+    <!-- ============================================= -->
+
+    <!-- Original Message Reference for corrections -->
+    <xs:complexType name="CorrMessageRef_Type">
+        <xs:sequence>
+            <xs:element name="CorrMessageRefId" type="stf:MessageRefId_Type"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Original Document Reference for corrections -->
+    <xs:complexType name="CorrDocRef_Type">
+        <xs:sequence>
+            <xs:element name="CorrDocRefId" type="stf:DocRefId_Type"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

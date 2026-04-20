@@ -1,0 +1,33 @@
+# CARFul - CARF XML Generator
+# Core Dependencies
+
+# XML Processing
+lxml>=5.1.0
+
+# Data Processing
+pandas>=2.2.0
+
+# Database (sqlite3 is built-in, but we add helpers)
+# sqlite3 is part of Python standard library
+
+# Decimal precision handling
+# decimal is part of Python standard library
+
+# Date/time parsing
+python-dateutil>=2.8.2
+
+# Data validation
+pydantic>=2.5.0
+
+# CLI interface
+click>=8.1.0
+
+# PDF Report Generation
+reportlab>=4.0.0
+
+# Testing
+pytest>=8.0.0
+pytest-cov>=4.1.0
+
+# Type hints
+typing-extensions>=4.9.0

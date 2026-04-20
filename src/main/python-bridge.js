@@ -122,10 +122,10 @@ class PythonBridge {
 
         try {
             // In production, carful package is in Contents/Resources/carful/
-            // In dev, it's at ../../../ (project root's parent has carful/)
+            // In dev, carful/ is in the repo root (carful-app/carful/)
             const isDev = !app.isPackaged;
             const cwd = isDev
-                ? path.join(__dirname, '../../../')
+                ? path.join(__dirname, '../../')
                 : process.resourcesPath;
 
             console.log(`Python CWD: ${cwd}`);

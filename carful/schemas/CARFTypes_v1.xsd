@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    CARF Types Schema v1.0
+    Based on OECD Crypto-Asset Reporting Framework XML Schema
+    Reference: OECD CARF XML Schema User Guide v2.0 (July 2025)
+
+    This schema defines common types used in CARF XML documents for
+    crypto-asset transaction reporting between tax administrations.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:carf="urn:oecd:ties:carf:v1"
+           xmlns:stf="urn:oecd:ties:stf:v1"
+           xmlns:iso="urn:oecd:ties:isocarf:v1"
+           targetNamespace="urn:oecd:ties:carf:v1"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+    <xs:import namespace="urn:oecd:ties:stf:v1" schemaLocation="OECDCommonTypes_v1.xsd"/>
+    <xs:import namespace="urn:oecd:ties:isocarf:v1" schemaLocation="ISOCARFTypes_v1.xsd"/>
+
+    <!-- ============================================= -->
+    <!-- Simple Types                                  -->
+    <!-- ============================================= -->
+
+    <!-- Message Type Indicator - Only CARF is valid -->
+    <xs:simpleType name="MessageTypeIndic_Type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CARF"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Document Type Indicator -->
+    <xs:simpleType name="DocTypeIndic_Type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CARF1">
+                <xs:annotation>
+                    <xs:documentation>New data</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF2">
+                <xs:annotation>
+                    <xs:documentation>Corrected data</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF3">
+                <xs:annotation>
+                    <xs:documentation>Deletion of data</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF0">
+                <xs:annotation>
+                    <xs:documentation>Resend data</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Account Holder Type -->
+    <xs:simpleType name="CARFAcctHolderType_Type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CARF101">
+                <xs:annotation>
+                    <xs:documentation>Individual</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF102">
+                <xs:annotation>
+                    <xs:documentation>Entity</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF103">
+                <xs:annotation>
+                    <xs:documentation>Entity with Controlling Person(s)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Transaction Type Codes (CARF4xx-6xx) -->
+    <xs:simpleType name="TransactionType_Type">
+        <xs:annotation>
+            <xs:documentation>
+                CARF Transaction Type Codes per OECD specification.
+                CARF4xx: Exchange Transactions
+                CARF5xx: Transfer In
+                CARF6xx: Transfer Out
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <!-- Exchange Transactions (CARF4xx) -->
+            <xs:enumeration value="CARF401">
+                <xs:annotation>
+                    <xs:documentation>Staking</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF402">
+                <xs:annotation>
+                    <xs:documentation>Crypto Loan</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF403">
+                <xs:annotation>
+                    <xs:documentation>Wrapping</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF404">
+                <xs:annotation>
+                    <xs:documentation>Collateral</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+
+            <!-- Transfer In (CARF5xx) -->
+            <xs:enumeration value="CARF501">
+                <xs:annotation>
+                    <xs:documentation>Airdrop</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF502">
+                <xs:annotation>
+                    <xs:documentation>Staking Income</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF503">
+                <xs:annotation>
+                    <xs:documentation>Mining</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF504">
+                <xs:annotation>
+                    <xs:documentation>Hard Fork</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF505">
+                <xs:annotation>
+                    <xs:documentation>Transfer from RCASP</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF506">
+                <xs:annotation>
+                    <xs:documentation>Retail Payment Received</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF507">
+                <xs:annotation>
+                    <xs:documentation>Other Transfer In</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF508">
+                <xs:annotation>
+                    <xs:documentation>Initial Acquisition</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF509">
+                <xs:annotation>
+                    <xs:documentation>Crypto Loan Received</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+
+            <!-- Transfer Out (CARF6xx) -->
+            <xs:enumeration value="CARF601">
+                <xs:annotation>
+                    <xs:documentation>Transfer to RCASP</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF602">
+                <xs:annotation>
+                    <xs:documentation>Transfer to Non-RCASP</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF603">
+                <xs:annotation>
+                    <xs:documentation>Retail Payment Made</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF604">
+                <xs:annotation>
+                    <xs:documentation>Gift/Donation Out</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF605">
+                <xs:annotation>
+                    <xs:documentation>Lost/Stolen</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CARF606">
+                <xs:annotation>
+                    <xs:documentation>Other Transfer Out</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Crypto Asset Code Type -->
+    <xs:simpleType name="CryptoAssetCode_Type">
+        <xs:annotation>
+            <xs:documentation>
+                Crypto asset identifier. Either standard code (BTC, ETH)
+                or custom identifier for non-standard assets.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="50"/>
+            <xs:pattern value="[A-Za-z0-9\-_]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Amount Type - 20 decimal precision per XSD requirement -->
+    <xs:simpleType name="CryptoAmount_Type">
+        <xs:annotation>
+            <xs:documentation>
+                Crypto asset amount with 20 decimal place precision.
+                Supports satoshi-level precision for Bitcoin and
+                wei-level precision for Ethereum.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:decimal">
+            <xs:totalDigits value="40"/>
+            <xs:fractionDigits value="20"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Fiat Amount Type -->
+    <xs:simpleType name="FiatAmount_Type">
+        <xs:annotation>
+            <xs:documentation>
+                Fiat currency amount for transaction valuation.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:decimal">
+            <xs:totalDigits value="20"/>
+            <xs:fractionDigits value="4"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- TIN Type with unknown attribute support -->
+    <xs:simpleType name="TIN_Type">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="200"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- String types with length constraints -->
+    <xs:simpleType name="StringMin1Max200_Type">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="200"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="StringMin1Max400_Type">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="400"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- ============================================= -->
+    <!-- Complex Types                                 -->
+    <!-- ============================================= -->
+
+    <!-- TIN with attributes -->
+    <xs:complexType name="TIN_WithAttr_Type">
+        <xs:simpleContent>
+            <xs:extension base="carf:TIN_Type">
+                <xs:attribute name="issuedBy" type="iso:CountryCode_Type"/>
+                <xs:attribute name="unknown" type="xs:boolean" default="false">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Set to true when TIN is not available (NOTIN case)
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Name Type -->
+    <xs:complexType name="NamePerson_Type">
+        <xs:sequence>
+            <xs:element name="FirstName" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="MiddleName" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="LastName" type="carf:StringMin1Max200_Type"/>
+            <xs:element name="NamePrefix" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="NameSuffix" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Organisation Name Type -->
+    <xs:complexType name="NameOrganisation_Type">
+        <xs:simpleContent>
+            <xs:extension base="carf:StringMin1Max200_Type">
+                <xs:attribute name="legalType" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Address Type -->
+    <xs:complexType name="Address_Type">
+        <xs:sequence>
+            <xs:element name="Street" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="BuildingIdentifier" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="SuiteIdentifier" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="FloorIdentifier" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="DistrictName" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="POB" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="PostCode" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="City" type="carf:StringMin1Max200_Type"/>
+            <xs:element name="CountrySubentity" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="Country" type="iso:CountryCode_Type"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Birth Information Type -->
+    <xs:complexType name="BirthInfo_Type">
+        <xs:sequence>
+            <xs:element name="BirthDate" type="xs:date"/>
+            <xs:element name="City" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="Country" type="iso:CountryCode_Type" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Money Amount with Currency -->
+    <xs:complexType name="MoneyAmount_Type">
+        <xs:simpleContent>
+            <xs:extension base="carf:FiatAmount_Type">
+                <xs:attribute name="currCode" type="iso:CurrencyCode_Type" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Crypto Asset Amount with Code -->
+    <xs:complexType name="CryptoAssetAmount_Type">
+        <xs:simpleContent>
+            <xs:extension base="carf:CryptoAmount_Type">
+                <xs:attribute name="assetCode" type="carf:CryptoAssetCode_Type" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Document Specification -->
+    <xs:complexType name="DocSpec_Type">
+        <xs:sequence>
+            <xs:element name="DocTypeIndic" type="carf:DocTypeIndic_Type"/>
+            <xs:element name="DocRefId" type="carf:StringMin1Max200_Type"/>
+            <xs:element name="CorrMessageRefId" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+            <xs:element name="CorrDocRefId" type="carf:StringMin1Max200_Type" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

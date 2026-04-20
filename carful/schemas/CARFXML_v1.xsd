@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    CARF XML Schema v1.5
+    Crypto-Asset Reporting Framework Main Schema
+    Based on OECD CARF XML Schema (July 2025)
+
+    This schema defines the structure for CARF XML documents used
+    for automatic exchange of crypto-asset information between
+    tax administrations.
+
+    Document Structure:
+    - CARF (root)
+      - MessageHeader
+      - CARFBody (1..n)
+        - ReportingGroup
+          - RCASP
+          - CryptoUsers (1..n)
+            - ReportableUser
+            - Transactions (1..n)
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:carf="urn:oecd:ties:carf:v1"
+           xmlns:stf="urn:oecd:ties:stf:v1"
+           xmlns:iso="urn:oecd:ties:isocarf:v1"
+           targetNamespace="urn:oecd:ties:carf:v1"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.5">
+
+    <xs:import namespace="urn:oecd:ties:stf:v1" schemaLocation="OECDCommonTypes_v1.xsd"/>
+    <xs:import namespace="urn:oecd:ties:isocarf:v1" schemaLocation="ISOCARFTypes_v1.xsd"/>
+    <xs:include schemaLocation="CARFTypes_v1.xsd"/>
+
+    <!-- ============================================= -->
+    <!-- Root Element                                  -->
+    <!-- ============================================= -->
+    <xs:element name="CARF">
+        <xs:annotation>
+            <xs:documentation>
+                Root element for CARF XML document.
+                Contains MessageHeader and one or more CARFBody elements.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="MessageHeader" type="carf:MessageHeader_Type"/>
+                <xs:element name="CARFBody" type="carf:CARFBody_Type" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="version" type="xs:string" fixed="1.5"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- ============================================= -->
+    <!-- Message Header                                -->
+    <!-- ============================================= -->
+    <xs:complexType name="MessageHeader_Type">
+        <xs:annotation>
+            <xs:documentation>
+                Identifies the sending and receiving tax administrations
+                and provides message metadata.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="TransmittingCountry" type="iso:CountryCode_Type">
+                <xs:annotation>
+                    <xs:documentation>
+                        ISO 3166-1 Alpha-2 code of the jurisdiction
+                        transmitting the CARF message.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ReceivingCountry" type="iso:CountryCode_Type">
+                <xs:annotation>
+                    <xs:documentation>
+                        ISO 3166-1 Alpha-2 code of the jurisdiction
+                        receiving the CARF message.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="MessageType" type="carf:MessageTypeIndic_Type">
+                <xs:annotation>
+                    <xs:documentation>
+                        Type of message. Must be "CARF" for CARF messages.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Warning" type="stf:Warning_Type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="MessageRefId" type="stf:MessageRefId_Type">
+                <xs:annotation>
+                    <xs:documentation>
+                        Unique identifier for this message.
+                        Should be UUID v4 format.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="MessageTypeIndic" type="carf:DocTypeIndic_Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Indicates if this is new data (CARF1), correction (CARF2),
+                        deletion (CARF3), or resend (CARF0).
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="CorrMessageRefId" type="stf:MessageRefId_Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Reference to the original message being corrected.
+                        Required when MessageTypeIndic is CARF2.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ReportingPeriod" type="xs:date">
+                <xs:annotation>
+                    <xs:documentation>
+                        Last day of the reporting period (typically calendar year end).
+                        Format: yyyy-MM-dd
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Timestamp" type="xs:dateTime">
+                <xs:annotation>
+                    <xs:documentation>
+                        Date and time when the message was compiled.
+                        ISO 8601 format with timezone.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- CARF Body                                     -->
+    <!-- ============================================= -->
+    <xs:complexType name="CARFBody_Type">
+        <xs:annotation>
+            <xs:documentation>
+                Contains RCASP information and reportable crypto users
+                with their transactions.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="ReportingGroup" type="carf:ReportingGroup_Type"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- Reporting Group                               -->
+    <!-- ============================================= -->
+    <xs:complexType name="ReportingGroup_Type">
+        <xs:sequence>
+            <xs:element name="RCASP" type="carf:RCASP_Type">
+                <xs:annotation>
+                    <xs:documentation>
+                        Reporting Crypto-Asset Service Provider.
+                        The entity submitting the report.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="CryptoUser" type="carf:CryptoUser_Type" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Reportable users and their crypto-asset transactions.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- RCASP (Reporting Crypto-Asset Service Provider) -->
+    <!-- ============================================= -->
+    <xs:complexType name="RCASP_Type">
+        <xs:sequence>
+            <xs:element name="DocSpec" type="carf:DocSpec_Type"/>
+            <xs:element name="Name" type="carf:NameOrganisation_Type"/>
+            <xs:element name="TIN" type="carf:TIN_WithAttr_Type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Address" type="carf:Address_Type"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- Crypto User (Reportable User)                 -->
+    <!-- ============================================= -->
+    <xs:complexType name="CryptoUser_Type">
+        <xs:sequence>
+            <xs:element name="DocSpec" type="carf:DocSpec_Type"/>
+            <xs:element name="AccountHolderType" type="carf:CARFAcctHolderType_Type"/>
+            <xs:choice>
+                <xs:element name="Individual" type="carf:Individual_Type"/>
+                <xs:element name="Entity" type="carf:Entity_Type"/>
+            </xs:choice>
+            <xs:element name="Transaction" type="carf:Transaction_Type" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- Individual (Person)                           -->
+    <!-- ============================================= -->
+    <xs:complexType name="Individual_Type">
+        <xs:sequence>
+            <xs:element name="Name" type="carf:NamePerson_Type"/>
+            <xs:element name="TIN" type="carf:TIN_WithAttr_Type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Address" type="carf:Address_Type" minOccurs="0"/>
+            <xs:element name="Nationality" type="iso:CountryCode_Type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="BirthInfo" type="carf:BirthInfo_Type" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- Entity (Organisation)                         -->
+    <!-- ============================================= -->
+    <xs:complexType name="Entity_Type">
+        <xs:sequence>
+            <xs:element name="Name" type="carf:NameOrganisation_Type"/>
+            <xs:element name="TIN" type="carf:TIN_WithAttr_Type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Address" type="carf:Address_Type" minOccurs="0"/>
+            <xs:element name="ControllingPerson" type="carf:ControllingPerson_Type"
+                        minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- Controlling Person                            -->
+    <!-- ============================================= -->
+    <xs:complexType name="ControllingPerson_Type">
+        <xs:sequence>
+            <xs:element name="Name" type="carf:NamePerson_Type"/>
+            <xs:element name="TIN" type="carf:TIN_WithAttr_Type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Address" type="carf:Address_Type" minOccurs="0"/>
+            <xs:element name="Nationality" type="iso:CountryCode_Type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="BirthInfo" type="carf:BirthInfo_Type" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- Transaction                                   -->
+    <!-- ============================================= -->
+    <xs:complexType name="Transaction_Type">
+        <xs:annotation>
+            <xs:documentation>
+                Represents a single crypto-asset transaction.
+                Includes transfer, exchange, and payment transactions.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="DocSpec" type="carf:DocSpec_Type"/>
+            <xs:element name="TransactionType" type="carf:TransactionType_Type">
+                <xs:annotation>
+                    <xs:documentation>
+                        CARF transaction type code (CARF401-CARF606).
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="TransactionId" type="carf:StringMin1Max200_Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Unique transaction identifier (blockchain hash, exchange ID).
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="TransactionDate" type="xs:dateTime">
+                <xs:annotation>
+                    <xs:documentation>
+                        Date and time of the transaction in ISO 8601 format.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="CryptoAsset" type="carf:CryptoAsset_Type"/>
+            <xs:element name="FiatValue" type="carf:MoneyAmount_Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Fiat currency equivalent value at time of transaction.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Fee" type="carf:CryptoAssetAmount_Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Transaction fee in crypto-asset units.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="FeeFiat" type="carf:MoneyAmount_Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Transaction fee in fiat currency.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="DestinationAddress" type="carf:StringMin1Max400_Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Destination wallet address for transfers out.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="SourceAddress" type="carf:StringMin1Max400_Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Source wallet address for transfers in.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Notes" type="carf:StringMin1Max4000_Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Additional notes or description for the transaction.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- Crypto Asset Details                          -->
+    <!-- ============================================= -->
+    <xs:complexType name="CryptoAsset_Type">
+        <xs:sequence>
+            <xs:element name="AssetCode" type="carf:CryptoAssetCode_Type">
+                <xs:annotation>
+                    <xs:documentation>
+                        Crypto asset identifier (e.g., BTC, ETH, USDT).
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Amount" type="carf:CryptoAmount_Type">
+                <xs:annotation>
+                    <xs:documentation>
+                        Amount of crypto-asset with 20 decimal precision.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="AssetName" type="carf:StringMin1Max200_Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Full name of the crypto-asset (e.g., "Bitcoin", "Ethereum").
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ============================================= -->
+    <!-- StringMin1Max4000_Type (extended)             -->
+    <!-- ============================================= -->
+    <xs:simpleType name="StringMin1Max4000_Type">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="4000"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>
