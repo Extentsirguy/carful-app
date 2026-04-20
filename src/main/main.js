@@ -8,6 +8,13 @@
  * All renderer-main communication flows through the preload script.
  */
 
+// Handle Squirrel.Windows installer events FIRST — before anything else
+const { handleSquirrelEvent } = require('./squirrel-handler');
+if (handleSquirrelEvent()) {
+    // Squirrel event handled, app will quit — don't initialize anything else
+    return;
+}
+
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const os = require('os');

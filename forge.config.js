@@ -56,8 +56,10 @@ module.exports = {
         name: 'CARFul',
         authors: 'CARFul',
         description: 'CARF XML Generation Tool for Crypto Asset Reporting',
-        iconUrl: 'https://carful.com/icon.ico',
         setupIcon: './resources/icon.ico',
+        loadingGif: './resources/installer-loading.gif',
+        setupExe: 'CARFul-Setup.exe',
+        noMsi: true,
       },
     },
     // Linux DEB
