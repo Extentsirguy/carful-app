@@ -59,6 +59,7 @@ jobs:
         run: npx electron-forge make --platform win32 --arch x64
 
       - name: List build output
+        shell: cmd
         run: dir out\make /s /b
 
       - name: Upload Windows installer artifact
